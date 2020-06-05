@@ -16,7 +16,7 @@ import reactor.core.publisher.Flux
 import java.time.Duration
 
 
-@Configuration
+@Component
 class NumberHandler {
     private fun numbers() = Flux.range(1, 10).delayElements(Duration.ofMillis(300))
     private fun letters() = ('a'..'z').asSequence()
