@@ -13,17 +13,23 @@ import org.springframework.web.reactive.function.BodyInserters.fromValue
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import reactor.core.publisher.Flux
+import java.time.Duration
 
 
 @Configuration
 class NumberHandler {
-    private fun numbers() = arrayOf(1, 2, 3, 4)
+    private fun numbers() = Flux.range(1, 10).delayElements(Duration.ofMillis(300))
     private fun letters() = ('a'..'z').asSequence()
 
     @Bean
     @RouterOperation(beanClass = NumberHandler::class, beanMethod = "getNumbers")
     fun getNumbers() = router {
-        GET("/numbers") { ServerResponse.ok().body(fromValue(numbers())) }
+        GET("/numbers") {
+            ServerResponse
+                    .ok()
+                    .contentType(MediaType.TEXT_EVENT_STREAM)
+                    .body(numbers())
+        }
     }
 
     @Bean
