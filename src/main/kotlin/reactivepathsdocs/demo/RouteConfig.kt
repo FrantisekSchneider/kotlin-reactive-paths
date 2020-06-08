@@ -1,5 +1,7 @@
 package reactivepathsdocs.demo
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import kotlinx.coroutines.reactive.asFlow
 import org.springdoc.core.GroupedOpenApi
 import org.springdoc.core.annotations.RouterOperation
@@ -50,14 +52,16 @@ class ApiHandler {
 
     suspend fun getData(req: ServerRequest): ServerResponse {
 
-        data class JsonData(val id: Long = 1323L,
-                            var name: String = "John",
-                            var lastname: String = "Doe")
+
 
         return ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyAndAwait(Flux.just(JsonData(), JsonData(id = 2323, name = "Mia", lastname = "Turner")).asFlow())
     }
+
+    data class JsonData(val id: Long = 1323L,
+                        var name: String = "John",
+                        var lastname: String = "Doe")
 }
 
 
@@ -84,7 +88,16 @@ class RouteConfig {
     @Bean
     @RouterOperations(
             value = [
-                RouterOperation(path = "/api/data", beanClass = ApiHandler::class, beanMethod = "getData", method = [RequestMethod.GET]),
+                RouterOperation(path = "/api/data", beanClass = ApiHandler::class, beanMethod = "getData", method = [RequestMethod.GET],
+                        operation = Operation(operationId = "getData",
+                                responses = [ApiResponse(
+                                        description = """ {
+    "id": 2323,
+    "name": "Mia",
+    "lastname": "Turner"
+  }
+                         """
+                                )])),
                 RouterOperation(path = "/api/emojis", beanClass = ApiHandler::class, beanMethod = "getEmojis", method = [RequestMethod.GET]
                 )
             ]
